@@ -217,10 +217,12 @@ export default function PortfolioForm() {
         created_by: user?.id,
       };
 
+      const { created_by, ...updatePayload } = payload;
+
       if (isEditing) {
         const { error } = await supabase
           .from("portfolio_items")
-          .update(payload)
+          .update(updatePayload)
           .eq("id", id);
         if (error) throw error;
       } else {
