@@ -18,6 +18,11 @@ export interface TikTokConfig {
   pixel_id: string;
 }
 
+export interface GTMConfig {
+  enabled: boolean;
+  container_id: string;
+}
+
 export interface LGPDConfig {
   anonymize_ip: boolean;
   consent_mode: boolean;
@@ -28,6 +33,7 @@ export interface TrackingConfig {
   ga4: GA4Config;
   meta: MetaConfig;
   tiktok: TikTokConfig;
+  gtm: GTMConfig;
   lgpd: LGPDConfig;
 }
 
@@ -35,6 +41,7 @@ const defaultConfig: TrackingConfig = {
   ga4: { enabled: false, measurement_id: "", debug_mode: false },
   meta: { enabled: false, pixel_id: "" },
   tiktok: { enabled: false, pixel_id: "" },
+  gtm: { enabled: false, container_id: "" },
   lgpd: { anonymize_ip: true, consent_mode: true, cookies_required: false },
 };
 
@@ -45,7 +52,7 @@ export function useTrackingConfig() {
       const { data, error } = await supabase
         .from("site_settings")
         .select("key, value")
-        .in("key", ["tracking_ga4", "tracking_meta", "tracking_tiktok", "tracking_lgpd"]);
+        .in("key", ["tracking_ga4", "tracking_meta", "tracking_tiktok", "tracking_gtm", "tracking_lgpd"]);
 
       if (error) {
         console.error("Error fetching tracking config:", error);
@@ -65,6 +72,9 @@ export function useTrackingConfig() {
             break;
           case "tracking_tiktok":
             config.tiktok = value as unknown as TikTokConfig;
+            break;
+          case "tracking_gtm":
+            config.gtm = value as unknown as GTMConfig;
             break;
           case "tracking_lgpd":
             config.lgpd = value as unknown as LGPDConfig;
@@ -87,6 +97,7 @@ export function useUpdateTrackingConfig() {
         { key: "tracking_ga4", value: JSON.parse(JSON.stringify(config.ga4)) as Json },
         { key: "tracking_meta", value: JSON.parse(JSON.stringify(config.meta)) as Json },
         { key: "tracking_tiktok", value: JSON.parse(JSON.stringify(config.tiktok)) as Json },
+        { key: "tracking_gtm", value: JSON.parse(JSON.stringify(config.gtm)) as Json },
         { key: "tracking_lgpd", value: JSON.parse(JSON.stringify(config.lgpd)) as Json },
       ];
 
