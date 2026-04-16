@@ -41,7 +41,7 @@ import { detectVideoType, isValidVideoUrl, generateThumbnailUrl } from "@/lib/vi
 const formSchema = z.object({
   title: z.string().min(1, "Título é obrigatório").max(200),
   description: z.string().max(1000).optional(),
-  niche: z.string().min(1, "Selecione um nicho"),
+  niches: z.array(z.string()).min(1, "Selecione pelo menos um nicho"),
   video_url: z.string().min(1, "URL do vídeo é obrigatória").refine(
     (url) => isValidVideoUrl(url),
     "URL inválida. Use um link do YouTube ou Google Drive"
@@ -83,7 +83,7 @@ export default function PortfolioForm() {
     defaultValues: {
       title: "",
       description: "",
-      niche: "",
+      niches: [],
       video_url: "",
       is_published: false,
       is_featured: false,
@@ -119,7 +119,7 @@ export default function PortfolioForm() {
       form.reset({
         title: item.title,
         description: item.description || "",
-        niche: item.niche,
+        niches: item.niches || (item.niche ? [item.niche] : []),
         video_url: item.video_url,
         is_published: item.is_published,
         is_featured: item.is_featured,
@@ -206,7 +206,8 @@ export default function PortfolioForm() {
       const payload = {
         title: values.title,
         description: values.description || null,
-        niche: values.niche,
+        niche: values.niches[0] || "", // Mantém para retrocompatibilidade
+        niches: values.niches,
         video_url: values.video_url,
         video_type: videoType,
         thumbnail_url: finalThumbnail,
@@ -307,27 +308,37 @@ export default function PortfolioForm() {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
-                name="niche"
+                name="niches"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nicho *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o nicho" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {nicheOptions.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
+                    <FormLabel>Nichos *</FormLabel>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-4 border rounded-lg bg-card/50">
+                      {nicheOptions.map((opt) => (
+                        <div key={opt.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`niche-${opt.value}`}
+                            checked={field.value?.includes(opt.value)}
+                            onCheckedChange={(checked) => {
+                              const current = field.value || [];
+                              const updated = checked
+                                ? [...current, opt.value]
+                                : current.filter((val) => val !== opt.value);
+                              field.onChange(updated);
+                            }}
+                          />
+                          <Label 
+                            htmlFor={`niche-${opt.value}`}
+                            className="text-sm font-normal cursor-pointer"
+                          >
                             {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    <FormDescription>Selecione todos os nichos onde este vídeo deve aparecer</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -337,7 +348,7 @@ export default function PortfolioForm() {
                 control={form.control}
                 name="display_order"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col justify-end">
                     <FormLabel>Ordem de exibição</FormLabel>
                     <FormControl>
                       <Input type="number" min="0" {...field} />

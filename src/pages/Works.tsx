@@ -22,6 +22,7 @@ interface PortfolioItem {
   id: string;
   title: string;
   niche: string;
+  niches: string[] | null;
   video_url: string;
   video_type: string;
   thumbnail_url: string | null;
@@ -144,7 +145,7 @@ export default function Works() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("portfolio_items")
-        .select("id, title, niche, video_url, video_type, thumbnail_url")
+        .select("id, title, niche, niches, video_url, video_type, thumbnail_url")
         .eq("is_published", true)
         .order("display_order", { ascending: true })
         .order("created_at", { ascending: false });
@@ -156,7 +157,7 @@ export default function Works() {
 
   const allFilteredProjects = activeCategory === "all"
     ? projects
-    : projects?.filter((p) => p.niche === activeCategory);
+    : projects?.filter((p) => p.niches?.includes(activeCategory) || p.niche === activeCategory);
 
   const filteredProjects = allFilteredProjects?.slice(0, visibleCount) || [];
 

@@ -180,7 +180,7 @@ export default function NichoPage() {
       const { data, error } = await supabase
         .from("portfolio_items")
         .select("*")
-        .eq("niche", slug!)
+        .contains("niches", [slug!])
         .eq("is_published", true)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -199,7 +199,7 @@ export default function NichoPage() {
       const { data, error } = await supabase
         .from("portfolio_items")
         .select("*")
-        .eq("niche", slug!)
+        .contains("niches", [slug!])
         .eq("is_published", true)
         .order("created_at", { ascending: false })
         .limit(3);

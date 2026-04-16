@@ -20,7 +20,8 @@ import {
   Shield, 
   Save,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Tag
 } from "lucide-react";
 
 // TikTok icon component
@@ -51,6 +52,7 @@ export default function Tracking() {
     ga4: { enabled: false, measurement_id: "", debug_mode: false },
     meta: { enabled: false, pixel_id: "" },
     tiktok: { enabled: false, pixel_id: "" },
+    gtm: { enabled: false, container_id: "" },
     lgpd: { anonymize_ip: true, consent_mode: true, cookies_required: false },
   });
 
@@ -66,6 +68,7 @@ export default function Tracking() {
   const validateGA4Id = (id: string) => /^G-[A-Z0-9]{6,12}$/i.test(id.trim());
   const validateMetaId = (id: string) => /^[0-9]{15,16}$/.test(id.trim());
   const validateTikTokId = (id: string) => /^[A-Z0-9]{18,24}$/i.test(id.trim());
+  const validateGTMId = (id: string) => /^GTM-[A-Z0-9]{7,12}$/i.test(id.trim());
 
   const handleSave = async () => {
     // Validate all enabled pixel IDs before saving
@@ -86,6 +89,12 @@ export default function Tracking() {
     if (formData.tiktok.enabled && formData.tiktok.pixel_id) {
       if (!validateTikTokId(formData.tiktok.pixel_id)) {
         errors.push("TikTok Pixel ID inválido. Deve ter 18-24 caracteres alfanuméricos.");
+      }
+    }
+
+    if (formData.gtm.enabled && formData.gtm.container_id) {
+      if (!validateGTMId(formData.gtm.container_id)) {
+        errors.push("GTM Container ID inválido. Formato esperado: GTM-XXXXXXX");
       }
     }
     
@@ -382,6 +391,59 @@ export default function Tracking() {
                   }
                   disabled={!isAdmin}
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Google Tag Manager */}
+          <Card>
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-teal-500/20">
+                    <Tag className="h-5 w-5 text-teal-500" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Google Tag Manager</CardTitle>
+                    <CardDescription>Gerenciamento de tags centralizado</CardDescription>
+                  </div>
+                </div>
+                <Switch
+                  checked={formData.gtm.enabled}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({ ...prev, gtm: { ...prev.gtm, enabled: checked } }))
+                  }
+                  disabled={!isAdmin}
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="gtm-id">Container ID</Label>
+                <div className="relative">
+                  <Input
+                    id="gtm-id"
+                    placeholder="GTM-XXXXXXX"
+                    value={formData.gtm.container_id}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        gtm: { ...prev.gtm, container_id: e.target.value },
+                      }))
+                    }
+                    disabled={!isAdmin}
+                    className="pr-10"
+                  />
+                  {formData.gtm.container_id && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {validateGTMId(formData.gtm.container_id) ? (
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-4 w-4 text-destructive" />
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

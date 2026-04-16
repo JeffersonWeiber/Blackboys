@@ -7,6 +7,7 @@ const PIXEL_ID_PATTERNS = {
   ga4: /^G-[A-Z0-9]{6,12}$/,      // GA4: G-XXXXXXXXXX format
   meta: /^[0-9]{15,16}$/,          // Meta: 15-16 digit numeric ID
   tiktok: /^[A-Z0-9]{18,24}$/i,    // TikTok: 18-24 alphanumeric
+  gtm: /^GTM-[A-Z0-9]{7,12}$/i,    // GTM: GTM-XXXXXXX format
 };
 
 // Validates and sanitizes pixel IDs to prevent XSS
@@ -21,6 +22,9 @@ function validatePixelId(id: string, type: 'ga4' | 'meta' | 'tiktok'): string | 
   }
   if (type === 'tiktok') {
     return PIXEL_ID_PATTERNS.tiktok.test(id.trim()) ? id.trim() : null;
+  }
+  if (type === 'gtm' as any) {
+    return PIXEL_ID_PATTERNS.gtm.test(id.trim()) ? id.trim().toUpperCase() : null;
   }
   return null;
 }
@@ -148,6 +152,47 @@ export function TrackingScripts() {
 
     return () => {
       script.remove();
+    };
+  }, [config, isLoading]);
+  
+  // Inject Google Tag Manager (GTM) script
+  useEffect(() => {
+    if (isLoading || !config?.gtm?.enabled || !config.gtm.container_id) return;
+
+    const containerId = validatePixelId(config.gtm.container_id, 'gtm' as any);
+    if (!containerId) {
+      console.warn('[TrackingScripts] Invalid GTM Container ID format, skipping injection');
+      return;
+    }
+
+    // Check if script already exists
+    if (document.querySelector(`script[src*="googletagmanager.com/gtm.js?id=${containerId}"]`)) return;
+
+    // Head script
+    const headScript = document.createElement("script");
+    headScript.textContent = `
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer',${JSON.stringify(containerId)});
+    `;
+    document.head.appendChild(headScript);
+
+    // NoScript (Body)
+    const noscript = document.createElement("noscript");
+    const iframe = document.createElement("iframe");
+    iframe.src = `https://www.googletagmanager.com/ns.html?id=${encodeURIComponent(containerId)}`;
+    iframe.height = "0";
+    iframe.width = "0";
+    iframe.style.display = "none";
+    iframe.style.visibility = "hidden";
+    noscript.appendChild(iframe);
+    document.body.insertBefore(noscript, document.body.firstChild);
+
+    return () => {
+      headScript.remove();
+      noscript.remove();
     };
   }, [config, isLoading]);
 
