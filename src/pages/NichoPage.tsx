@@ -403,7 +403,7 @@ export default function NichoPage() {
               size="lg"
               className="border-gold text-gold hover:bg-gold hover:text-primary-foreground px-8"
             >
-              <Link to="/works">Ver Todos os Projetos</Link>
+              <Link to={`/works?category=${slug}`}>Ver Todos os Projetos</Link>
             </Button>
           </div>
         </div>

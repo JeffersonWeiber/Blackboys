@@ -1,4 +1,5 @@
 import { CSSProperties, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
@@ -121,7 +122,9 @@ function WorksThumbnail({ project }: { project: PortfolioItem }) {
 }
 
 export default function Works() {
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category");
+  const [activeCategory, setActiveCategory] = useState(categoryParam || "all");
   const [selectedVideo, setSelectedVideo] = useState<SelectedVideo | null>(null);
   const [visibleCount, setVisibleCount] = useState(12);
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
