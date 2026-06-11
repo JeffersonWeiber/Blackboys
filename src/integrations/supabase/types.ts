@@ -14,6 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
+      budget_links: {
+        Row: {
+          client_email: string | null
+          client_name: string | null
+          client_phone: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          lead_id: string | null
+          sent_at: string | null
+          status: string
+          template_id: string | null
+          token: string
+          viewed_at: string | null
+        }
+        Insert: {
+          client_email?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          lead_id?: string | null
+          sent_at?: string | null
+          status?: string
+          template_id?: string | null
+          token: string
+          viewed_at?: string | null
+        }
+        Update: {
+          client_email?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          lead_id?: string | null
+          sent_at?: string | null
+          status?: string
+          template_id?: string | null
+          token?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_links_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_links_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "budget_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_templates: {
+        Row: {
+          content: Json
+          created_at: string
+          hero_badge: string | null
+          id: string
+          intro_text: string | null
+          is_active: boolean
+          name: string
+          niche: string
+          portfolio_url: string | null
+          slug: string
+          subtitle: string | null
+          title: string
+          updated_at: string
+          whatsapp_message: string | null
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          hero_badge?: string | null
+          id?: string
+          intro_text?: string | null
+          is_active?: boolean
+          name: string
+          niche: string
+          portfolio_url?: string | null
+          slug: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+          whatsapp_message?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          hero_badge?: string | null
+          id?: string
+          intro_text?: string | null
+          is_active?: boolean
+          name?: string
+          niche?: string
+          portfolio_url?: string | null
+          slug?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+          whatsapp_message?: string | null
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           category: string | null

@@ -43,6 +43,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { BudgetLeadActions } from "@/components/admin/BudgetLeadActions";
 
 interface Lead {
   id: string;
@@ -413,6 +414,12 @@ export default function LeadDetail() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Budget Actions */}
+            <BudgetLeadActions lead={lead} onStatusUpdate={(newStatus) => {
+              setStatus(newStatus);
+              setLead(prev => prev ? { ...prev, status: newStatus } : null);
+            }} />
 
             {/* Quick Actions */}
             <Card className="border-border/50">

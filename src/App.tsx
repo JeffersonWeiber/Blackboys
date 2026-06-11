@@ -29,7 +29,9 @@ import ClientsForm from "./pages/admin/ClientsForm";
 import Analytics from "./pages/admin/Analytics";
 import Tracking from "./pages/admin/Tracking";
 import Config from "./pages/admin/Config";
-
+import BudgetTemplatesList from "./pages/admin/BudgetTemplatesList";
+import BudgetTemplateForm from "./pages/admin/BudgetTemplateForm";
+import BudgetPublic from "./pages/BudgetPublic";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -174,6 +176,32 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/orcamentos"
+              element={
+                <ProtectedRoute>
+                  <BudgetTemplatesList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/orcamentos/new"
+              element={
+                <ProtectedRoute>
+                  <BudgetTemplateForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/orcamentos/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <BudgetTemplateForm />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route path="/orcamento/:token" element={<BudgetPublic />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
