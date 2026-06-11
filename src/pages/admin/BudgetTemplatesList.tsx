@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Search, Pencil, Eye, EyeOff, Copy } from "lucide-react";
+import { Plus, Search, Pencil, Eye, EyeOff, Copy, Link as LinkIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const filterOptions = [
@@ -223,6 +223,18 @@ export default function BudgetTemplatesList() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              const url = `${window.location.origin}/orcamento/${tpl.slug}`;
+                              navigator.clipboard.writeText(url);
+                              toast({ title: "Link genérico copiado!" });
+                            }}
+                            title="Copiar link genérico"
+                          >
+                            <LinkIcon className="w-4 h-4 text-muted-foreground" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"
