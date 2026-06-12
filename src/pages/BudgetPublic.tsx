@@ -120,7 +120,7 @@ export default function BudgetPublic() {
   const content = template.content;
   const nicheInfo = linkData.nicheInfo;
   
-  const heroImage = nicheInfo?.cover_image || "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1920&q=80";
+  const heroImage = content?.cover_image || nicheInfo?.cover_image || "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1920&q=80";
   const portfolioUrl = template.portfolio_url || `/nicho/${template.niche}`;
 
   const formatPrice = (value: number) => {

@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Search, Pencil, Eye, EyeOff, Copy, Link as LinkIcon } from "lucide-react";
+import { Plus, Search, Pencil, Eye, EyeOff, Copy, Link as LinkIcon, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const filterOptions = [
@@ -108,6 +108,23 @@ export default function BudgetTemplatesList() {
     onError: (error) => {
       console.error(error);
       toast({ title: "Erro ao duplicar modelo", variant: "destructive" });
+    },
+  });
+
+  const deleteTemplate = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("budget_templates")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["budget_templates"] });
+      toast({ title: "Modelo excluído com sucesso!" });
+    },
+    onError: () => {
+      toast({ title: "Erro ao excluir modelo", variant: "destructive" });
     },
   });
 
@@ -264,6 +281,19 @@ export default function BudgetTemplatesList() {
                             <Link to={`/admin/orcamentos/${tpl.id}/edit`}>
                               <Pencil className="w-4 h-4 text-muted-foreground" />
                             </Link>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive/90"
+                            onClick={() => {
+                              if (window.confirm("Tem certeza que deseja excluir este modelo? Essa ação não pode ser desfeita e os links que usam este modelo pararão de funcionar.")) {
+                                deleteTemplate.mutate(tpl.id);
+                              }
+                            }}
+                            title="Excluir"
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>

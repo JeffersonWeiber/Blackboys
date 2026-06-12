@@ -20,8 +20,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAllNiches } from "@/hooks/useNiches";
 
 // Types
 const packageItemSchema = z.object({
@@ -64,6 +72,7 @@ const formSchema = z.object({
   portfolio_url: z.string().optional(),
   whatsapp_message: z.string().optional(),
   is_active: z.boolean().default(true),
+  cover_image: z.string().optional(),
   packages: z.array(packageSchema),
   formats: z.array(formatSchema),
   addons: z.array(addonSchema),
@@ -89,6 +98,7 @@ export default function BudgetTemplateForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: niches } = useAllNiches();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -103,6 +113,7 @@ export default function BudgetTemplateForm() {
       portfolio_url: "",
       whatsapp_message: "",
       is_active: true,
+      cover_image: "",
       packages: [],
       formats: [],
       addons: [],
@@ -110,7 +121,7 @@ export default function BudgetTemplateForm() {
     },
   });
 
-  const { fields: packageFields, append: appendPackage, remove: removePackage } = useFieldArray({
+  const { fields: packageFields, append: appendPackage, remove: removePackage, move: movePackage } = useFieldArray({
     control: form.control,
     name: "packages",
   });
@@ -168,6 +179,7 @@ export default function BudgetTemplateForm() {
         portfolio_url: template.portfolio_url || "",
         whatsapp_message: template.whatsapp_message || "",
         is_active: template.is_active,
+        cover_image: content?.cover_image || "",
         packages: content?.packages?.map((p: any) => ({
           ...p,
           items: p.items?.map((item: string) => ({ value: item })) || []
@@ -203,7 +215,7 @@ export default function BudgetTemplateForm() {
         portfolio_url: values.portfolio_url,
         whatsapp_message: values.whatsapp_message,
         is_active: values.is_active,
-        content: content,
+        content: { ...content, cover_image: values.cover_image },
       };
 
       if (isEditing) {
@@ -304,12 +316,20 @@ export default function BudgetTemplateForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Nicho *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="ex: casamento" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Deve corresponder exatamente ao nicho dos leads
-                        </FormDescription>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione um nicho" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {niches?.map((n) => (
+                              <SelectItem key={n.id} value={n.slug}>
+                                {n.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -323,6 +343,22 @@ export default function BudgetTemplateForm() {
                         <FormControl>
                           <Input placeholder="Ex: Blackboy Films | Casamentos" {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="cover_image"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>URL da Imagem de Fundo (Opcional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Deixe em branco para usar a imagem do Nicho" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Cole o link de uma imagem. Se não preenchido, será usada a imagem do nicho.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -447,15 +483,35 @@ export default function BudgetTemplateForm() {
               <CardContent className="space-y-6">
                 {packageFields.map((field, index) => (
                   <div key={field.id} className="p-4 border rounded-lg relative space-y-4">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-2 right-2 text-destructive"
-                      onClick={() => removePackage(index)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="absolute top-2 right-2 flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        disabled={index === 0}
+                        onClick={() => movePackage(index, index - 1)}
+                      >
+                        <ArrowUp className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        disabled={index === packageFields.length - 1}
+                        onClick={() => movePackage(index, index + 1)}
+                      >
+                        <ArrowDown className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive"
+                        onClick={() => removePackage(index)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       <FormField
