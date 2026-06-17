@@ -19,17 +19,27 @@ export function LocationSection() {
         </div>
 
         {/* Map Container */}
-        <div className="w-full max-w-5xl mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-2xl h-[400px] md:h-[500px]">
+        <div className="w-full max-w-5xl mx-auto rounded-2xl overflow-hidden border-2 border-gold/50 shadow-[0_0_40px_-10px_rgba(212,175,55,0.3)] h-[400px] md:h-[500px] relative group">
+          {/* Subtle gold overlay that disappears on hover */}
+          <div className="absolute inset-0 bg-gold/5 pointer-events-none transition-opacity duration-500 group-hover:opacity-0 z-10" />
           <iframe 
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d115206.18244903332!2d-53.53503110290529!3d-24.95759160533602!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94f3d43ab8790cb7%3A0x6b445afdf444ba75!2sCascavel%2C%20PR!5e0!3m2!1spt-BR!2sbr!4v1716999999999!5m2!1spt-BR!2sbr" 
             width="100%" 
             height="100%" 
-            style={{ border: 0, filter: 'grayscale(100%) invert(90%) contrast(80%)' }} 
+            style={{ border: 0, filter: 'grayscale(100%) invert(90%) contrast(85%) sepia(30%) hue-rotate(5deg)' }} 
             allowFullScreen={false} 
             loading="lazy" 
             referrerPolicy="no-referrer-when-downgrade"
             title="Localização Blackboy Films"
+            className="transition-all duration-500 group-hover:filter-none"
           />
+        </div>
+
+        {/* Subtext */}
+        <div className="text-center mt-8">
+          <p className="text-muted-foreground text-lg md:text-xl font-light">
+            Atendemos toda região do <span className="text-gold font-medium">Paraná</span>
+          </p>
         </div>
       </div>
     </section>
