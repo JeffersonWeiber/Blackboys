@@ -1,9 +1,9 @@
-import { useFeaturedClients } from "@/hooks/useClients";
+import { usePublicClients } from "@/hooks/useClients";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 
 export function ClientsSection() {
-  const { data: clients, isLoading } = useFeaturedClients();
+  const { data: clients, isLoading } = usePublicClients();
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
 
   // Don't render if no clients
@@ -56,14 +56,16 @@ export function ClientsSection() {
                   "--marquee-items": clients.length,
                 } as React.CSSProperties}
               >
-                {duplicatedClients.map((client, index) => (
-                  <ClientLogo
-                    key={`${client.id}-${index}`}
-                    name={client.name}
-                    logoUrl={client.logo_url}
-                    websiteUrl={client.website_url}
-                  />
-                ))}
+                {duplicatedClients.map((client, index) =>
+                  client.logo_url ? (
+                    <ClientLogo
+                      key={`${client.id}-${index}`}
+                      name={client.name}
+                      logoUrl={client.logo_url}
+                      websiteUrl={client.website_url}
+                    />
+                  ) : null
+                )}
               </div>
             </div>
           </div>

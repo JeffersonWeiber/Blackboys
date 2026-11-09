@@ -85,8 +85,12 @@ export function BudgetLeadActions({ lead, onStatusUpdate }: { lead: any; onStatu
         await fetchExistingLink();
         toast({ title: "Link recuperado com sucesso!" });
       } else {
-        // Create new
-        const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        // Token criptograficamente seguro (o antigo Math.random era previsível)
+        const token = crypto.randomUUID().replace(/-/g, "");
+        const template = templates.find((t) => t.id === selectedTemplateId);
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 7);
+
         const payload = {
           lead_id: lead.id,
           template_id: selectedTemplateId,
@@ -94,7 +98,10 @@ export function BudgetLeadActions({ lead, onStatusUpdate }: { lead: any; onStatu
           client_name: lead.name.split(" ")[0], // First name
           client_phone: lead.phone_e164 || lead.phone,
           client_email: lead.email,
-          status: "created"
+          status: "created",
+          // Snapshot imutável: a proposta não muda se o modelo for editado depois
+          content_snapshot: template?.content ?? null,
+          expires_at: expiresAt.toISOString(),
         };
 
         const { data, error } = await supabase

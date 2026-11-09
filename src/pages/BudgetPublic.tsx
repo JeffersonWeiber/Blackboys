@@ -1,19 +1,76 @@
-import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import { Download, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Check, Loader2, ArrowRight } from "lucide-react";
+import { useCompanyProfile } from "@/hooks/useCompanyProfile";
+import {
+  ProposalDocument,
+  type ProposalContent,
+} from "@/components/proposal/ProposalDocument";
+import { AcceptPanel, type AcceptResult } from "@/components/proposal/AcceptPanel";
 import logoBlackboy from "@/assets/logo-blackboy-films.svg";
-import { cn } from "@/lib/utils";
+import "@/styles/proposal.css";
+
+type ProposalPayload = {
+  mode: "link" | "generic";
+  proposal: {
+    id?: string;
+    status?: string;
+    client_name?: string | null;
+    client_email?: string | null;
+    client_phone?: string | null;
+    created_at?: string | null;
+    expires_at?: string | null;
+    viewed_at?: string | null;
+    version?: number;
+    total_value?: number | null;
+    accepted_at?: string | null;
+    accepted_by_name?: string | null;
+    content_snapshot?: ProposalContent | null;
+    selection?: {
+      package?: { id?: string; name?: string; price?: number };
+      addons?: { name?: string; price?: number }[];
+    } | null;
+  };
+  template: {
+    name: string;
+    title: string;
+    subtitle?: string | null;
+    hero_badge?: string | null;
+    intro_text?: string | null;
+    niche?: string;
+    portfolio_url?: string | null;
+    content?: ProposalContent | null;
+  };
+  contract?: { token?: string; number?: string } | null;
+  niche: { name?: string; slug?: string; cover_image?: string | null } | null;
+};
+
+type PageError = "not_found" | "expired" | "unavailable" | null;
+
+const brl = (value: number) =>
+  new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(Number.isFinite(value) ? value : 0);
 
 export default function BudgetPublic() {
   const { token } = useParams<{ token: string }>();
+  const company = useCompanyProfile();
+
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<"not_found" | "expired" | null>(null);
-  const [linkData, setLinkData] = useState<any>(null);
+  const [error, setError] = useState<PageError>(null);
+  const [payload, setPayload] = useState<ProposalPayload | null>(null);
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
+  const [selectedAddons, setSelectedAddons] = useState<number[]>([]);
+  const [acceptedResult, setAcceptedResult] = useState<AcceptResult | null>(null);
+
+  const generatedAt = useMemo(() => new Date().toLocaleString("pt-BR"), []);
 
   useEffect(() => {
-    async function fetchBudget() {
+    let cancelled = false;
+
+    async function fetchProposal() {
       if (!token) {
         setError("not_found");
         setLoading(false);
@@ -21,72 +78,99 @@ export default function BudgetPublic() {
       }
 
       try {
-        let isGeneric = false;
+        // Toda leitura pública passa por RPC: o anon não acessa tabelas.
+        const { data, error: rpcError } = await supabase.rpc("proposal_get", {
+          _token: token,
+        });
 
-        // Try searching for a specific link token first
-        let { data: link, error: linkErr } = await supabase
-          .from("budget_links")
-          .select("*, template:budget_templates(*)")
-          .eq("token", token)
-          .maybeSingle();
+        if (rpcError) throw rpcError;
 
-        // If not found, check if token is actually a template slug (generic mode)
-        if (!link) {
-          const { data: genericTemplate } = await supabase
-            .from("budget_templates")
-            .select("*")
-            .eq("slug", token)
-            .eq("is_active", true)
-            .maybeSingle();
-            
-          if (genericTemplate) {
-            isGeneric = true;
-            link = {
-              template: genericTemplate,
-              client_name: "",
-              status: "generic",
-            };
-          } else {
-            setError("not_found");
+        if (!data) {
+          if (!cancelled) setError("not_found");
+          return;
+        }
+
+        const result = data as unknown as ProposalPayload;
+        const status = result.proposal?.status;
+        const expiresAt = result.proposal?.expires_at;
+
+        if (result.mode === "link") {
+          // Proposta aceita continua acessível, mesmo depois da validade.
+          if (status === "accepted") {
+            // segue para renderizar
+          } else if (status === "superseded" || status === "rejected") {
+            if (!cancelled) setError("unavailable");
+            return;
+          } else if (
+            status === "expired" ||
+            (expiresAt && new Date(expiresAt) < new Date())
+          ) {
+            if (!cancelled) setError("expired");
             return;
           }
         }
 
-        if (!isGeneric && (link.status === "expired" || (link.expires_at && new Date(link.expires_at) < new Date()))) {
-          setError("expired");
-          return;
+        if (cancelled) return;
+
+        const content =
+          result.proposal?.content_snapshot ?? result.template?.content ?? {};
+        const packages = content.packages ?? [];
+        const addons = content.addons ?? [];
+
+        if (status === "accepted" && result.proposal?.selection?.package?.id) {
+          setSelectedPackageId(result.proposal.selection.package.id);
+          const acceptedNames = new Set(
+            (result.proposal.selection.addons ?? []).map((addon) => addon.name),
+          );
+          setSelectedAddons(
+            addons
+              .map((addon, index) => (acceptedNames.has(addon.name) ? index : -1))
+              .filter((index) => index >= 0),
+          );
+        } else {
+          const initial = packages.find((pkg) => pkg.featured) ?? packages[0];
+          if (initial) setSelectedPackageId(initial.id);
         }
 
-        // Fetch niche info for background image
-        const { data: nicheData } = await supabase
-          .from("niches")
-          .select("*")
-          .eq("slug", link.template.niche)
-          .maybeSingle();
+        setPayload(result);
 
-        setLinkData({ ...link, nicheInfo: nicheData });
-
-        // Update viewed_at if it's a specific link
-        if (!isGeneric && !link.viewed_at) {
-          await supabase
-            .from("budget_links")
-            .update({
-              viewed_at: new Date().toISOString(),
-              status: link.status === "created" || link.status === "sent" ? "viewed" : link.status
-            })
-            .eq("id", link.id);
+        // Registra visualização (idempotente, só na primeira vez).
+        // Falha aqui não pode derrubar a proposta.
+        if (result.mode === "link") {
+          supabase
+            .rpc("proposal_track_view", { _token: token })
+            .then(({ error: trackError }) => {
+              if (trackError) {
+                console.warn("proposal_track_view failed:", trackError);
+              }
+            });
         }
-
       } catch (err) {
-        console.error("Error fetching budget:", err);
-        setError("not_found");
+        console.error("Error fetching proposal:", err);
+        if (!cancelled) setError("not_found");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
-    fetchBudget();
+    fetchProposal();
+    return () => {
+      cancelled = true;
+    };
   }, [token]);
+
+  // Nome do arquivo ao salvar em PDF
+  useEffect(() => {
+    if (!payload) return;
+    const previous = document.title;
+    const who = payload.proposal?.client_name
+      ? ` - ${payload.proposal.client_name}`
+      : "";
+    document.title = `Proposta Comercial${who} - Blackboy Films`;
+    return () => {
+      document.title = previous;
+    };
+  }, [payload]);
 
   if (loading) {
     return (
@@ -96,219 +180,164 @@ export default function BudgetPublic() {
     );
   }
 
-  if (error === "not_found") {
+  if (error) {
+    const copy: Record<Exclude<PageError, null>, { title: string; text: string }> = {
+      not_found: {
+        title: "Orçamento não encontrado",
+        text: "O link que você tentou acessar não existe ou foi removido.",
+      },
+      expired: {
+        title: "Este orçamento expirou",
+        text: "Entre em contato com a gente para receber uma proposta atualizada.",
+      },
+      unavailable: {
+        title: "Esta proposta foi encerrada",
+        text: "Ela foi substituída por uma versão mais recente ou não está mais disponível.",
+      },
+    };
+
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 text-center">
         <img src={logoBlackboy} alt="Blackboy Films" className="h-12 mb-8 opacity-50" />
-        <h1 className="text-2xl font-display font-bold text-center">Orçamento não encontrado</h1>
-        <p className="text-muted-foreground mt-2 text-center">O link que você tentou acessar não existe ou foi removido.</p>
+        <h1 className="text-2xl font-display font-bold">{copy[error].title}</h1>
+        <p className="text-muted-foreground mt-2 max-w-md">{copy[error].text}</p>
       </div>
     );
   }
 
-  if (error === "expired") {
+  if (!payload) {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
-        <img src={logoBlackboy} alt="Blackboy Films" className="h-12 mb-8 opacity-50" />
-        <h1 className="text-2xl font-display font-bold text-center">Este orçamento expirou</h1>
-        <p className="text-muted-foreground mt-2 text-center">Entre em contato conosco para solicitar uma nova proposta.</p>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-gold animate-spin" />
       </div>
     );
   }
 
-  const template = linkData.template;
-  const content = template.content;
-  const nicheInfo = linkData.nicheInfo;
-  
-  const heroImage = content?.cover_image || nicheInfo?.cover_image || "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1920&q=80";
-  const portfolioUrl = template.portfolio_url || `/nicho/${template.niche}`;
+  const proposal = payload.proposal ?? {};
+  const template = payload.template;
+  const content: ProposalContent =
+    proposal.content_snapshot ?? template.content ?? {};
+  const isLink = payload.mode === "link";
+  const accepted = proposal.status === "accepted" || !!acceptedResult;
+  const packages = content.packages ?? [];
+  const addons = content.addons ?? [];
 
-  const formatPrice = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  const selectedPackage = packages.find((pkg) => pkg.id === selectedPackageId) ?? null;
+  const packagePrice = Number(selectedPackage?.price ?? 0);
+  const addonsTotal = selectedAddons.reduce(
+    (sum, index) => sum + Number(addons[index]?.price ?? 0),
+    0,
+  );
+  const total = packagePrice + addonsTotal;
+
+  const proposalId = proposal.id ?? "";
+  const protocol =
+    acceptedResult?.protocol ??
+    (proposalId ? proposalId.replace(/-/g, "").slice(0, 8).toUpperCase() : "—");
+  const version = proposal.version ?? 1;
+
+  const acceptedAt = acceptedResult?.accepted_at ?? proposal.accepted_at ?? null;
+  const acceptedByName =
+    acceptedResult?.accepted_by_name ?? proposal.accepted_by_name ?? null;
+
+  const contractToken =
+    acceptedResult?.contract_token ?? payload.contract?.token ?? null;
+  const contractHref = accepted && contractToken ? `/contrato/${contractToken}` : null;
+
+  const handlePrint = () => {
+    window.print();
   };
 
-  const handleWhatsAppClick = () => {
-    let msg = template.whatsapp_message || "Olá! Gostaria de falar sobre o orçamento.";
-    
-    // Replace variables
-    msg = msg.replace(/{{client_name}}/g, linkData.client_name || "Cliente");
-    msg = msg.replace(/{{budget_url}}/g, window.location.href);
-    msg = msg.replace(/{{template_name}}/g, template.name);
-
-    // Encode
-    const encodedMsg = encodeURIComponent(msg);
-    const phone = "554599827236";
-    window.open(`https://wa.me/${phone}?text=${encodedMsg}`, "_blank");
+  const scrollToAccept = () => {
+    document.getElementById("aceite")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-slate-200 selection:bg-gold/30 font-sans pb-24">
-      {/* HEADER / HERO ESTILO NICHO */}
-      <section className="relative min-h-[70vh] flex flex-col items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src={heroImage}
-            alt="Background"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-[#0A0A0A]" />
+    <div className="proposal-shell">
+      <div className="proposal-toolbar no-print">
+        <span className="proposal-toolbar-id">
+          {isLink ? `Proposta Nº ${protocol}` : "Tabela de investimento"}
+          {version > 1 ? ` · v${version}` : ""}
+        </span>
+
+        <div className="proposal-toolbar-actions">
+          <span className="proposal-toolbar-hint">
+            Abre a impressão — escolha “Salvar como PDF”
+          </span>
+          <button type="button" className="p-btn p-btn--ghost" onClick={handlePrint}>
+            <Download size={15} />
+            Baixar PDF
+          </button>
         </div>
+      </div>
 
-        {/* Top Navbar Area for Logo */}
-        <div className="absolute top-0 left-0 w-full p-6 sm:p-12 flex justify-center z-20">
-          <img src={logoBlackboy} alt="Blackboy Films" className="h-10 sm:h-12" />
+      <ProposalDocument
+        protocol={protocol}
+        version={version}
+        createdAt={proposal.created_at ?? null}
+        expiresAt={proposal.expires_at ?? null}
+        clientName={proposal.client_name ?? null}
+        clientEmail={proposal.client_email ?? null}
+        clientPhone={proposal.client_phone ?? null}
+        template={template}
+        content={content}
+        company={company}
+        accepted={accepted}
+        acceptedAt={acceptedAt}
+        acceptedByName={acceptedByName}
+        selectedPackageId={selectedPackageId}
+        selectedAddons={selectedAddons}
+        onSelectPackage={setSelectedPackageId}
+        onToggleAddon={(index) =>
+          setSelectedAddons((current) =>
+            current.includes(index)
+              ? current.filter((item) => item !== index)
+              : [...current, index],
+          )
+        }
+        packagePrice={packagePrice}
+        total={total}
+        generatedAt={generatedAt}
+        showAcceptance={isLink}
+        contractHref={contractHref}
+        acceptSlot={
+          isLink && !accepted && token ? (
+            <AcceptPanel
+              token={token}
+              clientName={proposal.client_name ?? null}
+              clientEmail={proposal.client_email ?? null}
+              clientPhone={proposal.client_phone ?? null}
+              packageId={selectedPackageId ?? ""}
+              packageName={selectedPackage?.name ?? "Pacote"}
+              addonsCount={selectedAddons.length}
+              addonIndexes={selectedAddons}
+              total={total}
+              onAccepted={setAcceptedResult}
+            />
+          ) : undefined
+        }
+      />
+
+      {isLink && !accepted && (
+        <div className="accept-bar no-print">
+          <div className="accept-bar-info">
+            <div className="accept-bar-label">Investimento total</div>
+            <div className="accept-bar-total">{brl(total)}</div>
+            <div className="accept-bar-name">
+              {selectedPackage?.name ?? "Escolha um pacote"}
+              {selectedAddons.length > 0
+                ? ` + ${selectedAddons.length} ${
+                    selectedAddons.length === 1 ? "adicional" : "adicionais"
+                  }`
+                : ""}
+            </div>
+          </div>
+
+          <button type="button" className="p-btn p-btn--gold" onClick={scrollToAccept}>
+            Aceitar proposta
+          </button>
         </div>
-
-        <div className="relative z-10 container mx-auto px-4 lg:px-8 text-center pt-24">
-          {template.hero_badge && (
-            <span className="inline-block text-gold text-sm font-medium tracking-[0.3em] uppercase mb-6 bg-gold/10 px-4 py-2 rounded-full border border-gold/20 backdrop-blur-sm">
-              {template.hero_badge}
-            </span>
-          )}
-
-          {linkData.client_name && (
-            <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto">
-              Olá, <span className="text-white font-medium">{linkData.client_name}</span>. O seu orçamento está aqui.
-            </p>
-          )}
-
-          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl tracking-wide mb-6 text-white uppercase drop-shadow-lg">
-            {template.title}
-          </h1>
-          
-          {template.subtitle && (
-            <p className="max-w-2xl mx-auto text-lg md:text-xl text-gold font-light drop-shadow-md">
-              {template.subtitle}
-            </p>
-          )}
-        </div>
-      </section>
-
-      <main className="max-w-5xl mx-auto px-6 sm:px-12 space-y-24 mt-12">
-        {/* INTRO TEXT */}
-        {template.intro_text && (
-          <section className="text-center max-w-3xl mx-auto">
-            <p className="text-lg leading-relaxed text-slate-300">
-              {template.intro_text}
-            </p>
-          </section>
-        )}
-
-        {/* CUSTOM SECTIONS */}
-        {content?.sections?.map((section: any, idx: number) => (
-          <section key={idx} className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl font-display font-bold text-white mb-4 uppercase tracking-wider">{section.title}</h2>
-            {section.body && <p className="text-lg leading-relaxed text-slate-300">{section.body}</p>}
-          </section>
-        ))}
-
-        {/* FORMATS */}
-        {content?.formats && content.formats.length > 0 && (
-          <section>
-            <h2 className="text-2xl font-display font-bold text-center text-white mb-10 uppercase tracking-wider">
-              Formatos de Entrega
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {content.formats.map((format: any, idx: number) => (
-                <div key={idx} className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 text-center hover:border-gold/30 transition-colors">
-                  <h3 className="text-lg font-medium text-gold mb-2 uppercase tracking-wide">{format.name}</h3>
-                  {format.description && <p className="text-sm text-slate-400">{format.description}</p>}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* PACKAGES */}
-        {content?.packages && content.packages.length > 0 && (
-          <section>
-            <h2 className="text-3xl font-display font-bold text-center text-white mb-16 uppercase tracking-wider">
-              Escolha sua Experiência
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-              {content.packages.map((pkg: any, idx: number) => (
-                <div 
-                  key={idx} 
-                  className={cn(
-                    "rounded-2xl border p-8 flex flex-col h-full relative transition-transform hover:-translate-y-1 duration-300",
-                    pkg.featured 
-                      ? "bg-gradient-to-b from-slate-900 to-black border-gold shadow-[0_0_40px_-10px_rgba(212,175,55,0.3)] transform lg:-translate-y-4" 
-                      : "bg-black border-slate-800"
-                  )}
-                >
-                  {pkg.featured && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gold text-black text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">
-                      Recomendado
-                    </div>
-                  )}
-                  
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl font-display font-bold text-white mb-2 uppercase">{pkg.name}</h3>
-                    {pkg.tagline && <p className="text-sm text-slate-400 mb-6">{pkg.tagline}</p>}
-                    <div className="text-3xl font-bold text-gold">
-                      {formatPrice(pkg.price)}
-                    </div>
-                  </div>
-
-                  <div className="flex-1 space-y-4">
-                    {pkg.items?.map((item: string, i: number) => (
-                      <div key={i} className="flex items-start gap-3 text-sm">
-                        <Check className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                        <span className="text-slate-300">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ADDONS */}
-        {content?.addons && content.addons.length > 0 && (
-          <section className="max-w-2xl mx-auto">
-            <h2 className="text-2xl font-display font-bold text-center text-white mb-8 uppercase tracking-wider">
-              Opcionais (Adicionais)
-            </h2>
-            <div className="space-y-3">
-              {content.addons.map((addon: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-slate-900/30 border border-slate-800 hover:border-gold/20 transition-colors">
-                  <span className="font-medium text-slate-200">{addon.name}</span>
-                  <span className="text-gold font-bold">{formatPrice(addon.price)}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ACTIONS */}
-        <section className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-12 border-t border-slate-800">
-          <Button 
-            size="lg" 
-            className="w-full sm:w-auto min-w-[280px] bg-gold text-black hover:bg-gold-light font-bold h-14 text-lg btn-glow"
-            onClick={handleWhatsAppClick}
-          >
-            Quero falar sobre este orçamento
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="lg"
-            className="w-full sm:w-auto min-w-[280px] border-gold text-gold hover:bg-gold hover:text-black font-semibold h-14 text-lg transition-all"
-            asChild
-          >
-            {portfolioUrl.startsWith("/") ? (
-              <Link to={portfolioUrl} target="_blank" rel="noopener noreferrer">
-                Explorar Portfólio <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
-            ) : (
-              <a href={portfolioUrl} target="_blank" rel="noopener noreferrer">
-                Explorar Portfólio <ArrowRight className="w-5 h-5 ml-2" />
-              </a>
-            )}
-          </Button>
-        </section>
-      </main>
+      )}
     </div>
   );
 }

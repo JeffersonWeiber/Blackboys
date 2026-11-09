@@ -1,0 +1,1241 @@
+/* =============================================================
+   Documento de proposta (tela + impressão A4)
+   Escopo: .proposal-shell  —  não vaza para o resto do site.
+   ============================================================= */
+
+.proposal-shell {
+  --p-bg: #080808;
+  --p-surface: #0f0f0f;
+  --p-surface-2: #151515;
+  --p-heading: #ffffff;
+  --p-text: #d6d6d6;
+  --p-muted: #8c8c8c;
+  --p-line: #232323;
+  --p-gold: #f0a32c;
+  --p-gold-soft: rgba(240, 163, 44, 0.1);
+  --p-gold-line: rgba(240, 163, 44, 0.35);
+
+  min-height: 100vh;
+  background: var(--p-bg);
+  color: var(--p-text);
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- barra de ações (não imprime) ---------- */
+.proposal-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: rgba(8, 8, 8, 0.86);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--p-line);
+}
+
+.proposal-toolbar-id {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+.proposal-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.proposal-toolbar-hint {
+  font-size: 11px;
+  color: var(--p-muted);
+  display: none;
+}
+
+@media (min-width: 720px) {
+  .proposal-toolbar {
+    padding: 12px 32px;
+  }
+  .proposal-toolbar-hint {
+    display: inline;
+  }
+}
+
+.p-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
+  font-family: inherit;
+}
+
+.p-btn--gold {
+  background: var(--p-gold);
+  color: #120c00;
+}
+.p-btn--gold:hover {
+  background: #ffb847;
+}
+
+.p-btn--ghost {
+  background: transparent;
+  border-color: var(--p-line);
+  color: var(--p-text);
+}
+.p-btn--ghost:hover {
+  border-color: var(--p-gold-line);
+  color: var(--p-gold);
+}
+
+.p-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ---------- documento ---------- */
+.proposal-doc {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 22px 120px;
+  overflow: hidden;
+}
+
+@media (min-width: 720px) {
+  .proposal-doc {
+    padding: 0 40px 120px;
+  }
+}
+
+.doc-brandbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 26px 0 18px;
+  border-bottom: 1px solid var(--p-line);
+}
+
+.doc-logo {
+  height: 56px;
+  width: auto;
+  display: block;
+}
+
+/* versão escura do logo: entra só na impressão, para não rasterizar */
+.doc-logo--print {
+  display: none;
+}
+
+.doc-brand-kicker {
+  padding-left: 14px;
+  border-left: 1px solid var(--p-line);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+  align-self: center;
+}
+
+.doc-brandbar-meta {
+  margin-left: auto;
+  text-align: right;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+  line-height: 1.7;
+}
+
+/* ---------- capa ---------- */
+.doc-cover {
+  position: relative;
+  padding: 56px 0 34px;
+}
+
+.doc-watermark {
+  position: absolute;
+  top: -40px;
+  right: -60px;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 460px;
+  line-height: 1;
+  color: var(--p-gold);
+  opacity: 0.05;
+  pointer-events: none;
+  user-select: none;
+}
+
+.doc-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--p-gold);
+  margin-bottom: 18px;
+}
+
+.doc-title {
+  position: relative;
+  font-size: clamp(34px, 6.2vw, 56px);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  color: var(--p-heading);
+  margin: 0 0 16px;
+  max-width: 16ch;
+}
+
+.doc-subtitle {
+  position: relative;
+  font-size: clamp(16px, 2.2vw, 19px);
+  color: var(--p-gold);
+  font-weight: 500;
+  margin: 0;
+  max-width: 46ch;
+  line-height: 1.5;
+}
+
+.doc-for {
+  position: relative;
+  margin: 26px 0 0;
+  font-size: 14px;
+  color: var(--p-muted);
+}
+
+.doc-for strong {
+  color: var(--p-text);
+  font-weight: 600;
+}
+
+/* ---------- ficha técnica ---------- */
+.doc-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+  margin: 34px 0 0;
+  padding: 22px 0 0;
+  border-top: 1px solid var(--p-line);
+}
+
+@media (min-width: 720px) {
+  .doc-meta {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.doc-meta div {
+  min-width: 0;
+}
+
+.doc-meta dt {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+  margin-bottom: 6px;
+}
+
+.doc-meta dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- partes ---------- */
+.doc-parties {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  margin: 44px 0 0;
+}
+
+@media (min-width: 780px) {
+  .doc-parties {
+    grid-template-columns: 1.15fr 1fr;
+  }
+}
+
+.doc-party {
+  position: relative;
+  border: 1px solid var(--p-gold-line);
+  border-radius: 14px;
+  padding: 22px 20px 18px;
+}
+
+.doc-party--muted {
+  border-color: var(--p-line);
+}
+
+.doc-party-label {
+  position: absolute;
+  top: -9px;
+  left: 14px;
+  padding: 0 8px;
+  background: var(--p-bg);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--p-gold);
+}
+
+.doc-party--muted .doc-party-label {
+  color: var(--p-muted);
+}
+
+.doc-party-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--p-heading);
+  margin: 0 0 8px;
+}
+
+.doc-party-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 13px;
+  color: var(--p-text);
+  line-height: 1.6;
+}
+
+.doc-party-row span {
+  color: var(--p-muted);
+}
+
+/* ---------- seções ---------- */
+.doc-section {
+  margin: 56px 0 0;
+}
+
+.doc-h2 {
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--p-heading);
+  margin: 0 0 18px;
+}
+
+.doc-h3 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--p-gold);
+  margin: 26px 0 8px;
+}
+
+.doc-body {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--p-text);
+  margin: 0;
+  max-width: 70ch;
+}
+
+.doc-intro {
+  font-size: clamp(16px, 2vw, 18px);
+  line-height: 1.7;
+  color: var(--p-text);
+  max-width: 62ch;
+}
+
+.doc-divider {
+  height: 1px;
+  background: var(--p-line);
+  margin: 56px 0 0;
+  border: 0;
+}
+
+/* ---------- formatos ---------- */
+.doc-formats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 700px) {
+  .doc-formats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.doc-format {
+  border: 1px solid var(--p-line);
+  border-radius: 12px;
+  padding: 18px;
+  background: var(--p-surface);
+  break-inside: avoid;
+}
+
+.doc-format h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-gold);
+}
+
+.doc-format p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--p-muted);
+}
+
+/* ---------- pacotes ---------- */
+.doc-packages {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+@media (min-width: 760px) {
+  .doc-packages {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: stretch;
+  }
+}
+
+.doc-package {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: left;
+  padding: 22px 20px 18px;
+  border: 1px solid var(--p-line);
+  border-radius: 14px;
+  background: var(--p-surface);
+  color: var(--p-text);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+  break-inside: avoid;
+}
+
+.doc-package:hover {
+  border-color: var(--p-gold-line);
+}
+
+.doc-package.is-selected {
+  border-color: var(--p-gold);
+  background: linear-gradient(180deg, var(--p-gold-soft), transparent 70%);
+}
+
+.doc-package:disabled {
+  cursor: default;
+}
+
+.doc-badge {
+  position: absolute;
+  top: -10px;
+  left: 18px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--p-gold);
+  color: #140d00;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.doc-package-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.doc-package h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--p-heading);
+  line-height: 1.25;
+}
+
+.doc-select-dot {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--p-line);
+  margin-top: 2px;
+  position: relative;
+}
+
+.doc-package.is-selected .doc-select-dot {
+  border-color: var(--p-gold);
+  background: var(--p-gold);
+}
+
+.doc-package.is-selected .doc-select-dot::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #140d00;
+}
+
+.doc-tagline {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--p-muted);
+  min-height: 38px;
+}
+
+.doc-price {
+  margin: 14px 0 4px;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--p-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.doc-price small {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+  margin-top: 2px;
+}
+
+.doc-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--p-line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.doc-list li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--p-text);
+}
+
+.doc-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--p-gold);
+  font-size: 13px;
+  line-height: inherit;
+}
+
+/* ---------- adicionais ---------- */
+.doc-addons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.doc-addon {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  background: var(--p-surface);
+  color: var(--p-text);
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.doc-addon:hover {
+  border-color: var(--p-gold-line);
+}
+
+.doc-addon.is-checked {
+  border-color: var(--p-gold-line);
+  background: var(--p-gold-soft);
+}
+
+.doc-addon:disabled {
+  cursor: default;
+}
+
+.doc-check {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--p-line);
+  position: relative;
+}
+
+.doc-addon.is-checked .doc-check {
+  border-color: var(--p-gold);
+  background: var(--p-gold);
+}
+
+.doc-addon.is-checked .doc-check::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid #140d00;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.doc-addon-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.doc-addon-price {
+  font-weight: 700;
+  color: var(--p-gold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---------- investimento ---------- */
+.doc-summary {
+  margin: 56px 0 0;
+  padding: 26px 24px;
+  border: 1px solid var(--p-gold-line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--p-gold-soft), transparent 65%);
+  break-inside: avoid;
+}
+
+.doc-summary-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--p-gold);
+  margin-bottom: 16px;
+}
+
+.doc-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 0;
+  font-size: 14px;
+}
+
+.doc-summary-row dt {
+  color: var(--p-muted);
+  min-width: 0;
+}
+
+.doc-summary-row dd {
+  margin: 0;
+  color: var(--p-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.doc-summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--p-gold-line);
+}
+
+.doc-summary-total dt {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+.doc-summary-total dd {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--p-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.doc-note {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--p-muted);
+}
+
+/* ---------- aceite ---------- */
+.doc-accept {
+  margin: 56px 0 0;
+  padding-top: 34px;
+  border-top: 1px solid var(--p-line);
+  break-inside: avoid;
+  scroll-margin-top: 88px;
+}
+
+.doc-accept-lead {
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--p-muted);
+  max-width: 62ch;
+}
+
+.doc-accept-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 680px) {
+  .doc-accept-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .doc-accept-grid .doc-field--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.doc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.doc-field label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+.doc-field input {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 9px;
+  border: 1px solid var(--p-line);
+  background: var(--p-surface);
+  color: var(--p-heading);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.doc-field input::placeholder {
+  color: #5a5a5a;
+}
+
+.doc-field input:focus {
+  border-color: var(--p-gold);
+}
+
+.doc-recap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+  margin: 20px 0 0;
+  padding: 12px 16px;
+  border-radius: 9px;
+  background: var(--p-surface-2);
+  font-size: 13px;
+  color: var(--p-muted);
+}
+
+.doc-recap strong {
+  color: var(--p-heading);
+  font-weight: 600;
+}
+
+.doc-recap b {
+  color: var(--p-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.doc-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 18px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--p-muted);
+  cursor: pointer;
+}
+
+.doc-consent input {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--p-gold);
+  flex-shrink: 0;
+}
+
+.doc-consent a {
+  color: var(--p-gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.doc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.doc-error {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: #f87171;
+}
+
+/* ---------- aceite registrado ---------- */
+.doc-accepted {
+  border: 1px solid var(--p-gold-line);
+  border-radius: 16px;
+  padding: 24px;
+  background: var(--p-gold-soft);
+  break-inside: avoid;
+}
+
+.doc-accepted-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--p-heading);
+  margin-bottom: 4px;
+}
+
+.doc-accepted-head svg {
+  color: var(--p-gold);
+}
+
+.doc-accepted-sub {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--p-muted);
+}
+
+.doc-accepted dl {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 0;
+}
+
+@media (min-width: 680px) {
+  .doc-accepted dl {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.doc-accepted dt {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+  margin-bottom: 4px;
+}
+
+.doc-accepted dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.doc-accepted-contract {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--p-gold);
+  text-decoration: none;
+  border-bottom: 1px solid var(--p-gold-line);
+  padding-bottom: 2px;
+}
+
+.doc-accepted-contract:hover {
+  color: #ffb847;
+}
+
+/* assinatura só no papel */
+.doc-sign {
+  display: none;
+  margin-top: 40px;
+}
+
+.doc-sign-row {
+  display: flex;
+  gap: 28px;
+  margin-top: 34px;
+}
+
+.doc-sign-line {
+  flex: 1;
+  border-top: 1px solid var(--p-line);
+  padding-top: 8px;
+  font-size: 11px;
+  color: var(--p-muted);
+}
+
+/* ---------- rodapé ---------- */
+.doc-footer {
+  margin-top: 64px;
+  padding-top: 20px;
+  border-top: 1px solid var(--p-line);
+  font-size: 11.5px;
+  line-height: 1.8;
+  color: var(--p-muted);
+}
+
+.doc-footer strong {
+  color: var(--p-text);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.doc-footer-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.doc-generated {
+  margin-top: 8px;
+  font-size: 10.5px;
+  color: #5f5f5f;
+}
+
+/* ---------- barra fixa de aceite ---------- */
+.accept-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 20px;
+  background: rgba(10, 10, 10, 0.94);
+  border-top: 1px solid var(--p-line);
+  backdrop-filter: blur(14px);
+}
+
+.accept-bar-info {
+  min-width: 0;
+}
+
+.accept-bar-label {
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+.accept-bar-total {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--p-gold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.accept-bar-name {
+  font-size: 11px;
+  color: var(--p-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 46vw;
+}
+
+@media (min-width: 720px) {
+  .accept-bar {
+    padding: 14px 32px;
+  }
+  .accept-bar-name {
+    max-width: none;
+  }
+}
+
+/* ---------- telas pequenas ---------- */
+@media (max-width: 719px) {
+  .doc-watermark {
+    font-size: 300px;
+    right: -40px;
+    top: -10px;
+  }
+  .doc-brandbar-meta {
+    display: none;
+  }
+  .doc-title {
+    max-width: none;
+  }
+}
+
+/* =============================================================
+   IMPRESSÃO — A4, fundo branco, tinta econômica
+   ============================================================= */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 15mm 18mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  .proposal-shell {
+    --p-bg: #ffffff;
+    --p-surface: #ffffff;
+    --p-surface-2: #f7f7f7;
+    --p-heading: #000000;
+    --p-text: #1c1c1c;
+    --p-muted: #5c5c5c;
+    --p-line: #d8d8d8;
+    --p-gold: #8a5a00;
+    --p-gold-soft: #f7f1e3;
+    --p-gold-line: #d9b877;
+
+    min-height: 0;
+    background: #ffffff !important;
+    color: #1c1c1c;
+  }
+
+  .no-print,
+  .proposal-toolbar,
+  .accept-bar,
+  .doc-watermark {
+    display: none !important;
+  }
+
+  .proposal-doc {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .doc-brandbar {
+    padding: 0 0 12px;
+  }
+
+  .doc-logo--screen {
+    display: none;
+  }
+
+  .doc-logo--print {
+    display: block;
+    height: 48px;
+  }
+
+  .doc-cover {
+    padding: 14mm 0 8mm;
+  }
+
+  .doc-title {
+    font-size: 30pt;
+    max-width: 18ch;
+  }
+
+  .doc-subtitle {
+    font-size: 12pt;
+  }
+
+  .doc-section {
+    margin-top: 9mm;
+  }
+
+  .doc-summary,
+  .doc-accept {
+    margin-top: 9mm;
+  }
+
+  .doc-h2 {
+    break-after: avoid;
+  }
+
+  .doc-packages {
+    padding-top: 4mm;
+  }
+
+  /* impressão mais compacta: as 3 opções precisam caber na mesma página */
+  .doc-package {
+    padding: 14px 13px 12px;
+  }
+
+  .doc-package h3 {
+    font-size: 12pt;
+  }
+
+  .doc-tagline {
+    font-size: 8.6pt;
+    min-height: 0;
+  }
+
+  .doc-price {
+    font-size: 20pt;
+    margin: 8px 0 2px;
+  }
+
+  .doc-list {
+    gap: 4px;
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  .doc-list li {
+    font-size: 8.4pt;
+    line-height: 1.4;
+  }
+
+  /* no papel, os opcionais não escolhidos não precisam ocupar espaço:
+     os escolhidos já aparecem itemizados no investimento */
+  .doc-addons-section {
+    display: none !important;
+  }
+
+  .doc-formats {
+    gap: 8px;
+  }
+
+  .doc-format {
+    border: 0;
+    border-left: 2px solid var(--p-gold);
+    border-radius: 0;
+    padding: 2px 0 2px 10px;
+    background: none;
+  }
+
+  .doc-format h3 {
+    font-size: 9pt;
+    margin-bottom: 2px;
+  }
+
+  .doc-format p {
+    font-size: 8.5pt;
+    color: #444;
+  }
+
+  .doc-package,
+  .doc-format,
+  .doc-summary,
+  .doc-accepted,
+  .doc-party,
+  .doc-addon,
+  .doc-accept {
+    break-inside: avoid;
+  }
+
+  .doc-package {
+    cursor: default;
+  }
+
+  /* no papel, o que não foi escolhido continua legível:
+     a hierarquia vem da borda dourada do pacote escolhido */
+  .doc-package:not(.is-selected) {
+    opacity: 1;
+  }
+
+  .doc-package.is-selected {
+    border-width: 1.5pt;
+  }
+
+  /* o navegador não imprime fundos por padrão: o selo vira rótulo */
+  .doc-badge {
+    position: static;
+    display: inline-block;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    padding: 0 0 3px;
+    color: var(--p-gold);
+    font-size: 7.5pt;
+    letter-spacing: 0.16em;
+  }
+
+  .doc-select-dot {
+    display: none;
+  }
+
+  .doc-addon {
+    cursor: default;
+  }
+
+  .doc-addon:not(.is-checked) {
+    opacity: 0.55;
+  }
+
+  .doc-addon:hover,
+  .doc-package:hover {
+    border-color: var(--p-line);
+  }
+
+  .doc-footer {
+    margin-top: 14mm;
+  }
+
+  .doc-sign {
+    display: block;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .doc-list li::before {
+    color: #8a5a00;
+  }
+}

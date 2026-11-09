@@ -25,13 +25,18 @@ import PortfolioForm from "./pages/admin/PortfolioForm";
 import NichesList from "./pages/admin/NichesList";
 import NichesForm from "./pages/admin/NichesForm";
 import ClientsList from "./pages/admin/ClientsList";
+import ClientDetail from "./pages/admin/ClientDetail";
 import ClientsForm from "./pages/admin/ClientsForm";
+import PartnersList from "./pages/admin/PartnersList";
+import PartnersForm from "./pages/admin/PartnersForm";
 import Analytics from "./pages/admin/Analytics";
 import Tracking from "./pages/admin/Tracking";
 import Config from "./pages/admin/Config";
 import BudgetTemplatesList from "./pages/admin/BudgetTemplatesList";
 import BudgetTemplateForm from "./pages/admin/BudgetTemplateForm";
+import ContractsList from "./pages/admin/ContractsList";
 import BudgetPublic from "./pages/BudgetPublic";
+import ContractPublic from "./pages/ContractPublic";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -145,10 +150,42 @@ const App = () => (
               }
             />
             <Route
+              path="/admin/clients/:id"
+              element={
+                <ProtectedRoute>
+                  <ClientDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/clients/:id/edit"
               element={
                 <ProtectedRoute>
                   <ClientsForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/partners"
+              element={
+                <ProtectedRoute>
+                  <PartnersList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/partners/new"
+              element={
+                <ProtectedRoute>
+                  <PartnersForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/partners/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <PartnersForm />
                 </ProtectedRoute>
               }
             />
@@ -200,8 +237,17 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/contratos"
+              element={
+                <ProtectedRoute>
+                  <ContractsList />
+                </ProtectedRoute>
+              }
+            />
             
             <Route path="/orcamento/:token" element={<BudgetPublic />} />
+            <Route path="/contrato/:token" element={<ContractPublic />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

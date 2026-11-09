@@ -38,6 +38,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LeadsKanban } from "@/components/admin/LeadsKanban";
+import { LeadCreateDialog } from "@/components/admin/LeadCreateDialog";
 
 interface Lead {
   id: string;
@@ -174,7 +175,8 @@ export default function LeadsList() {
               {totalCount} leads encontrados
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <LeadCreateDialog onCreated={(id) => navigate(`/admin/leads/${id}`)} />
             {/* View Toggle */}
             <Tabs value={view} onValueChange={(v) => setView(v as "list" | "kanban")}>
               <TabsList className="bg-muted/50">

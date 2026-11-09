@@ -1,0 +1,572 @@
+/* =============================================================
+   Documento de contrato (tela + impressão A4)
+   Reaproveita os tokens e a barra de .proposal-shell (proposal.css)
+   e adiciona apenas a estrutura própria do contrato.
+   ============================================================= */
+
+.contract-doc {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 22px 120px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+@media (min-width: 720px) {
+  .contract-doc {
+    padding: 0 40px 120px;
+  }
+}
+
+/* ---------- cabeçalho ---------- */
+.contract-head {  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 30px 0 20px;
+  border-bottom: 1px solid var(--p-line);
+}
+
+.contract-head-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.contract-kicker {
+  padding-left: 14px;
+  border-left: 1px solid var(--p-line);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+.contract-head-meta {
+  text-align: right;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+  line-height: 1.7;
+}
+
+/* ---------- abertura ---------- */
+.contract-title-block {
+  padding: 40px 0 8px;
+}
+
+.contract-eyebrow {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--p-gold);
+  margin-bottom: 12px;
+}
+
+.contract-title {
+  font-family: "Bebas Neue", "Inter", sans-serif;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--p-heading);
+  margin: 0 0 18px;
+}
+
+.contract-lead {
+  margin: 0;
+  color: var(--p-text);
+  max-width: 68ch;
+}
+
+.contract-lead b {
+  color: var(--p-heading);
+  font-weight: 600;
+}
+
+/* ---------- partes ---------- */
+.contract-parties {
+  display: grid;
+  gap: 18px;
+  margin-top: 30px;
+}
+
+@media (min-width: 640px) {
+  .contract-parties {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.contract-party {
+  position: relative;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  padding: 22px 18px 18px;
+}
+
+.contract-party--client {
+  border-color: var(--p-gold-line);
+}
+
+.contract-party-label {
+  position: absolute;
+  top: -8px;
+  left: 14px;
+  padding: 0 6px;
+  background: var(--p-bg);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--p-gold);
+}
+
+.contract-party-name {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--p-heading);
+}
+
+.contract-party p {
+  margin: 2px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--p-muted);
+}
+
+/* ---------- cláusulas ---------- */
+.contract-clause {
+  margin-top: 34px;
+  break-inside: avoid;
+}
+
+.contract-h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-family: "Bebas Neue", "Inter", sans-serif;
+  font-size: 21px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: var(--p-heading);
+}
+
+.contract-h2 span {
+  color: var(--p-gold);
+}
+
+.contract-h3 {
+  margin: 22px 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--p-heading);
+}
+
+.contract-clause p {
+  margin: 0 0 8px;
+}
+
+.contract-clause p:last-child {
+  margin-bottom: 0;
+}
+
+.contract-note {
+  font-size: 13px;
+  color: var(--p-muted);
+}
+
+/* serviços */
+.contract-service {
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-top: 14px;
+}
+
+.contract-service-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.contract-service-head h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--p-gold);
+}
+
+.contract-service-head span {
+  font-size: 13px;
+  color: var(--p-text);
+  white-space: nowrap;
+}
+
+.contract-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.contract-list li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 13.5px;
+  color: var(--p-text);
+  line-height: 1.55;
+}
+
+.contract-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--p-gold);
+  font-size: 13px;
+  line-height: inherit;
+}
+
+/* obrigações */
+.contract-obligations {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+@media (min-width: 640px) {
+  .contract-obligations {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.contract-obligation {
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.contract-obligation h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--p-heading);
+}
+
+.contract-obligation p {
+  margin: 0 0 8px;
+  font-size: 13.5px;
+  color: var(--p-text);
+}
+
+.contract-obligation p:last-child {
+  margin-bottom: 0;
+}
+
+/* evento */
+.contract-event {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 16px 18px;
+  border: 1px solid var(--p-line);
+  border-radius: 10px;
+}
+
+.contract-event-row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 10px;
+  font-size: 13.5px;
+}
+
+.contract-event-row dt {
+  color: var(--p-muted);
+}
+
+.contract-event-row dd {
+  margin: 0;
+  color: var(--p-text);
+}
+
+.contract-event-row dd strong {
+  color: var(--p-heading);
+  font-weight: 600;
+}
+
+/* ---------- assinatura ---------- */
+.contract-sign {
+  margin-top: 42px;
+  break-inside: avoid;
+}
+
+.contract-place {
+  text-align: center;
+  font-size: 13px;
+  color: var(--p-muted);
+  margin-bottom: 26px;
+}
+
+.contract-sign-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.contract-sign-box {
+  height: 62px;
+  border: 1px solid var(--p-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.contract-sign-label {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+/* ---------- rodapé ---------- */
+.contract-footer {
+  margin-top: 44px;
+  padding-top: 14px;
+  border-top: 1px solid var(--p-line);
+  font-size: 10.5px;
+  color: var(--p-muted);
+}
+
+.contract-footer-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.contract-footer-line strong {
+  color: var(--p-text);
+  font-weight: 600;
+}
+
+.contract-generated {
+  margin: 8px 0 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--p-muted);
+}
+
+/* ---------- celular ---------- */
+@media (max-width: 640px) {
+  .contract-toolbar .proposal-toolbar-id {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+  }
+
+  .contract-toolbar .p-btn {
+    flex: 0 0 auto;
+    padding: 0 14px;
+    white-space: nowrap;
+  }
+
+  .contract-head {
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 22px;
+  }
+
+  .contract-kicker {
+    display: none;
+  }
+
+  .contract-head-meta {
+    text-align: left;
+    font-size: 10px;
+  }
+
+  .contract-title {
+    font-size: clamp(27px, 8.4vw, 38px);
+  }
+
+  .contract-sign-row {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+/* =============================================================
+   IMPRESSÃO A4 — 2 páginas
+   ============================================================= */
+@media print {
+  .contract-doc {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    font-size: 9.6pt;
+    line-height: 1.55;
+  }
+
+  .contract-head {
+    padding: 0 0 10px;
+  }
+
+  .contract-head-meta {
+    color: var(--p-muted);
+  }
+
+  .contract-title-block {
+    padding: 5mm 0 3mm;
+  }
+
+  .contract-title {
+    font-size: 24pt;
+    margin-bottom: 8px;
+  }
+
+  .contract-lead {
+    font-size: 9.6pt;
+  }
+
+  .contract-parties {
+    margin-top: 4mm;
+    gap: 5mm;
+    break-inside: avoid;
+  }
+
+  .contract-party {
+    padding: 12px 12px 10px;
+    border-radius: 6px;
+  }
+
+  .contract-party-label {
+    background: #ffffff;
+    color: var(--p-gold);
+    font-size: 7pt;
+  }
+
+  .contract-party-name {
+    font-size: 10.5pt;
+  }
+
+  .contract-party p {
+    font-size: 8.6pt;
+  }
+
+  .contract-clause {
+    margin-top: 4.5mm;
+  }
+
+  .contract-h2 {
+    font-size: 14pt;
+    margin-bottom: 6px;
+  }
+
+  .contract-h3 {
+    font-size: 9.8pt;
+    margin: 4mm 0 4px;
+  }
+
+  .contract-clause p {
+    margin-bottom: 4px;
+  }
+
+  .contract-note {
+    font-size: 8.6pt;
+  }
+
+  .contract-service {
+    padding: 10px 12px;
+    margin-top: 3mm;
+    border-radius: 6px;
+  }
+
+  .contract-service-head {
+    margin-bottom: 5px;
+  }
+
+  .contract-service-head h3 {
+    font-size: 9.8pt;
+  }
+
+  .contract-service-head span {
+    font-size: 8.6pt;
+  }
+
+  .contract-list {
+    gap: 2px;
+  }
+
+  .contract-list li {
+    font-size: 8.4pt;
+    line-height: 1.35;
+  }
+
+  .contract-obligations {
+    gap: 4mm;
+    margin-top: 3mm;
+    break-inside: avoid;
+  }
+
+  .contract-obligation {
+    padding: 10px 12px;
+    border-radius: 6px;
+  }
+
+  .contract-obligation h3 {
+    font-size: 8pt;
+  }
+
+  .contract-obligation p {
+    font-size: 8.4pt;
+  }
+
+  .contract-event {
+    margin-top: 3mm;
+    padding: 10px 12px;
+    border-radius: 6px;
+    gap: 3px;
+    break-inside: avoid;
+  }
+
+  .contract-event-row {
+    font-size: 8.6pt;
+    grid-template-columns: 60px 1fr;
+  }
+
+  .contract-sign {
+    margin-top: 8mm;
+  }
+
+  .contract-place {
+    font-size: 8.6pt;
+    margin-bottom: 6mm;
+  }
+
+  .contract-sign-box {
+    height: 26mm;
+    background: none;
+    border-radius: 4px;
+  }
+
+  .contract-sign-label {
+    font-size: 8pt;
+  }
+
+  .contract-footer {
+    margin-top: 8mm;
+    padding-top: 4mm;
+    font-size: 7.6pt;
+  }
+
+  .contract-generated {
+    font-size: 7pt;
+  }
+}

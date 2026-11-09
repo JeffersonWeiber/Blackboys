@@ -2,32 +2,52 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+export type ClientStatus = "ativo" | "inativo" | "legado";
+
 export interface Client {
   id: string;
   name: string;
-  logo_url: string;
+  trade_name: string | null;
+  document: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  notes: string | null;
+  status: ClientStatus;
+  show_on_site: boolean;
+  logo_url: string | null;
   website_url: string | null;
   category: string | null;
   is_featured: boolean;
   is_active: boolean;
   display_order: number;
+  niche_id: string | null;
+  origin_lead_id: string | null;
+  converted_at: string | null;
   created_at: string;
   updated_at: string;
 }
 
-export type ClientInsert = Omit<Client, "id" | "created_at" | "updated_at">;
+export type ClientInsert = Partial<
+  Omit<Client, "id" | "created_at" | "updated_at" | "converted_at">
+> & {
+  name: string;
+};
 export type ClientUpdate = Partial<ClientInsert>;
 
-// Hook para buscar clientes featured (público)
-export function useFeaturedClients() {
+// Parede de logos da Home: quem tem logo e está marcado para aparecer
+export function usePublicClients() {
   return useQuery({
-    queryKey: ["clients", "featured"],
+    queryKey: ["clients", "public"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("clients")
         .select("*")
         .eq("is_active", true)
-        .eq("is_featured", true)
+        .eq("show_on_site", true)
+        .not("logo_url", "is", null)
         .order("display_order", { ascending: true });
 
       if (error) throw error;
