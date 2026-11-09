@@ -16,7 +16,8 @@ major_version = 15
 [studio]
 port = 54333
 
-[inbucket]
+[local_smtp]
+enabled = true
 port = 54334
 smtp_port = 54335
 pop3_port = 54336
