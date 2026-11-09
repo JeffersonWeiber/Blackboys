@@ -1,4 +1,25 @@
 project_id = "ibmojkhyyfizianmooez"
 
+# Portas explícitas para evitar conflito com outros projetos Supabase locais.
+# API: 54331 | DB: 54332 | Studio: 54333
+[api]
+port = 54331
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54332
+shadow_port = 54330
+major_version = 15
+
+[studio]
+port = 54333
+
+[inbucket]
+port = 54334
+smtp_port = 54335
+pop3_port = 54336
+
 [functions.webhook-proxy]
 verify_jwt = false
