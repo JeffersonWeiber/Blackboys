@@ -1,12 +1,20 @@
--- Migration para criar tabela de keep-alive para evitar pausa do Supabase (Free Tier)
 CREATE TABLE IF NOT EXISTS keep_alive (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  ping_status TEXT DEFAULT 'ok'
+  id UUID PRIMARY KEY DEFAULT '00000000-0000-0000-0000-000000000000',
+  last_ping TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
--- Habilitar RLS
+-- Insere o registro inicial (se não existir)
+INSERT INTO keep_alive (id) VALUES ('00000000-0000-0000-0000-000000000000')
+ON CONFLICT (id) DO NOTHING;
+
+-- Liberar acesso anônimo para atualização (apenas para este ID específico)
+-- Assim o GitHub Action pode atualizar sem complicação
 ALTER TABLE keep_alive ENABLE ROW LEVEL SECURITY;
 
--- Política para permitir que o service_role gerencie tudo (padrão do Supabase)
--- Não criaremos políticas públicas, pois o script usará a SERVICE_ROLE_KEY
+CREATE POLICY "Allow anonymous update for keep_alive" ON keep_alive
+FOR UPDATE USING (id = '00000000-0000-0000-0000-000000000000')
+WITH CHECK (id = '00000000-0000-0000-0000-000000000000');
+
+-- Permitir leitura também
+CREATE POLICY "Allow public read for keep_alive" ON keep_alive
+FOR SELECT USING (true);

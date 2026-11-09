@@ -444,19 +444,16 @@ export type Database = {
       }
       keep_alive: {
         Row: {
-          created_at: string | null
           id: string
-          ping_status: string | null
+          last_ping: string | null
         }
         Insert: {
-          created_at?: string | null
           id?: string
-          ping_status?: string | null
+          last_ping?: string | null
         }
         Update: {
-          created_at?: string | null
           id?: string
-          ping_status?: string | null
+          last_ping?: string | null
         }
         Relationships: []
       }
