@@ -1,7 +1,6 @@
 import { MessageCircle } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
-
-const WHATSAPP_URL = "https://api.whatsapp.com/send/?phone=554599827236&text=Vim%20pelo%20site%20e%20gostaria%20de%20um%20or%C3%A7amento%21";
+import { WHATSAPP_URL } from "@/lib/contact";
 
 export function WhatsAppFloat() {
   const { trackEvent } = useTracking();

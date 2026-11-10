@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { WHATSAPP_NUMBER_DISPLAY } from "@/lib/contact";
 
 export interface CompanyProfile {
   legal_name: string;
@@ -16,7 +17,7 @@ const FALLBACK: CompanyProfile = {
   legal_name: "Blackboy Films",
   document: "41.260.784/0001-74",
   email: "blackboyfilms@hotmail.com",
-  phone: "(45) 99827-2361",
+  phone: WHATSAPP_NUMBER_DISPLAY,
   address: "Rua Marechal Deodoro, 1563",
   city: "Cascavel",
   state: "PR",

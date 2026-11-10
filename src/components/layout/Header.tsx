@@ -4,6 +4,7 @@ import { Menu, X, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import logoIcon from "@/assets/logo-icon.svg";
+import { WHATSAPP_URL } from "@/lib/contact";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -12,8 +13,6 @@ const navLinks = [
   { href: "/sobre", label: "Sobre" },
   { href: "/contato", label: "Contato" },
 ];
-
-const WHATSAPP_URL = "https://api.whatsapp.com/send/?phone=554599827236&text=Vim%20pelo%20site%20e%20gostaria%20de%20um%20or%C3%A7amento%21";
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);

@@ -20,6 +20,7 @@ import { Mail, MapPin, Phone, MessageCircle, CheckCircle, ArrowRight } from "luc
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { triggerWebhook } from "@/hooks/useWebhook";
+import { WHATSAPP_NUMBER_FULL, WHATSAPP_URL } from "@/lib/contact";
 
 const nichos = [
   { value: "casamento", label: "Casamento" },
@@ -39,8 +40,6 @@ const comoConheceu = [
   { value: "linkedin", label: "LinkedIn" },
   { value: "outros", label: "Outros" },
 ];
-
-const WHATSAPP_URL = "https://api.whatsapp.com/send/?phone=554599827236&text=Vim%20pelo%20site%20e%20gostaria%20de%20um%20or%C3%A7amento%21";
 
 export default function Contato() {
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
@@ -304,7 +303,7 @@ export default function Contato() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">WhatsApp</p>
-                    <p className="font-medium">+55 45 9982-7236</p>
+                    <p className="font-medium">{WHATSAPP_NUMBER_FULL}</p>
                   </div>
                 </a>
 
